@@ -1,0 +1,29 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #07040f;
+  color: #c4b2e8;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+canvas {
+  width: min(96vw, 960px);
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(151, 120, 194, 0.25);
+  background: #07040f;
+}
+.hint {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
