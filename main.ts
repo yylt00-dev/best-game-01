@@ -7,7 +7,7 @@
 // Local run:  mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 // Play it:    node serve.ts   →  http://localhost:8080
 
-import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -15,12 +15,24 @@ import { buildDossier } from './vendor/makefun-game.ts';
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-mkdirSync(out, { recursive: true });
-cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
-mkdirSync(join(out, 'screenshots'), { recursive: true });
-if (existsSync(join(here, 'screenshots'))) {
-  cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+// Fail loudly on a broken hand-in instead of writing an empty dossier:
+// the game folder must hold the playable site and at least one screenshot
+// must exist, or there is nothing worth judging.
+const gameDir = join(here, 'game');
+if (!existsSync(join(gameDir, 'index.html'))) {
+  throw new Error('game/index.html is missing: nothing to hand in');
 }
+const shotsDir = join(here, 'screenshots');
+const shots = existsSync(shotsDir)
+  ? readdirSync(shotsDir).filter((f) => /\.(png|jpe?g)$/i.test(f))
+  : [];
+if (shots.length === 0) {
+  throw new Error('screenshots/ holds no PNG/JPEG: the entry needs real screenshots');
+}
+
+mkdirSync(out, { recursive: true });
+cpSync(gameDir, join(out, 'game'), { recursive: true });
+cpSync(shotsDir, join(out, 'screenshots'), { recursive: true });
 
 // Caps from the competition gate: at most 4 screenshots of 256 KiB each,
 // at most 993 game files / 48 MiB in total, no game path over 1000 bytes.
